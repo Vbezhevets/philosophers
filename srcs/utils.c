@@ -47,9 +47,9 @@ void show_act(t_all *all, int curr, char *str)
 	long long 		t;
 
 	t = get_time() - all->philo[curr].start_time;
-	// pthread_mutex_lock(&all->print_mtx);
+	pthread_mutex_lock(&all->print_mtx);
 	printf("%llu %d %s\n", t, curr, str);
-	// pthread_mutex_unlock(&all->print_mtx);
+	pthread_mutex_unlock(&all->print_mtx);
 }
 
 int udream(t_all *all, long long time)

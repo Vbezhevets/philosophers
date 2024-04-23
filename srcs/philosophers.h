@@ -16,6 +16,7 @@ typedef struct s_all t_all;
 typedef  struct 	s_philo
 {
 	int				prev;
+	int				id;
 	int				is_waiting;
 	int				meals_left;
 
@@ -34,6 +35,7 @@ typedef  struct 	s_philo
 typedef  struct 	s_all
 {	
 	int				qty;
+	int				debug;
 
 	pthread_mutex_t	stop_mtx;
 	int 			stop;

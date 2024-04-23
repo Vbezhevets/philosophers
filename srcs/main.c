@@ -39,8 +39,8 @@ void mtx_init(t_all *all, int i)
 			error("error mutex creating");
 		i++;
 	}
-	if (pthread_mutex_init(&all->cur_mtx, NULL) != 0)
-		error("error mutex creating");
+	// if (pthread_mutex_init(&all->cur_mtx, NULL) != 0)
+	// 	error("error mutex creating");
 	if (pthread_mutex_init(&all->stop_mtx, NULL) != 0)
 		error("error mutex creating");
 	if (pthread_mutex_init(&all->alives_mtx, NULL) != 0)
@@ -56,14 +56,17 @@ void start(t_all *all, int i)
  	while (i <= all->qty)
 	{	
 		all->philo[i].start_time = all->start_time;
+		all->philo[i].id = i;
 		all->philo[i].last_meal = all->start_time;
 		all->philo[i].mall = all;
 		all->philo[i].last_sleep = all->start_time + all->sleep_time;
-		pthread_mutex_lock(&all->cur_mtx);
-		all->curr = i;
-		pthread_mutex_unlock(&all->cur_mtx);
-		if (pthread_create(&all->philo[i].lives, NULL, &create_philo_thread, (void *) all) != 0)
+		// pthread_mutex_lock(&all->cur_mtx);
+		// all->curr = i;
+		// pthread_mutex_unlock(&all->cur_mtx);
+		if (pthread_create(&all->philo[i].lives, NULL, &create_philo_thread, (void *) &all->philo[i]) != 0)
 	 		error("error creating thread");
+		// personal_loop(all, i);
+
 		i += 2;
         if (i > all->qty && i % 2 != 0)
 			i = 2;
@@ -75,15 +78,15 @@ void end(t_all *all, int i)
 {
 	while (i <= all->qty)
 	{
-		// pthread_detach(all->philo[i].lives);
 		pthread_join(all->philo[i].lives, NULL);
-		pthread_mutex_destroy(&all->Y[i]);
 		pthread_mutex_destroy(&all->philo[i].last_meal_mtx);
 		i++;
 	}
-	pthread_mutex_unlock(&all->print_mtx);
+	while (i <= all->qty)
+		pthread_mutex_destroy(&all->Y[i]);
+
 	pthread_mutex_destroy(&all->alives_mtx);
-	pthread_mutex_destroy(&all->cur_mtx);
+	// pthread_mutex_destroy(&all->cur_mtx);
 	pthread_mutex_destroy(&all->print_mtx);
 }
 
@@ -91,6 +94,7 @@ int main (int argc, char *argv[])
 {
 	t_all  all;
 
+	all.debug = 0;
 	if (argc != 6 && argc != 5)
 		return(printf("wrong aruments\n"), 1);
 	check_and_assign(&all, argc, argv, 1);
