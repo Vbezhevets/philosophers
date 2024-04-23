@@ -1,4 +1,4 @@
-#include "philosophers.h"
+	#include "philosophers.h"
 
  
 void YY_lock(t_all *all, int curr)
@@ -8,8 +8,10 @@ void YY_lock(t_all *all, int curr)
 	int second_Y;
 
 	prev = (curr - 2 + all->qty) % all->qty + 1;
-	first_Y = (prev + ((prev + 1) % 2)) % (all->qty + 1);
-	second_Y = (prev + (prev % 2)) % all->qty;
+
+	// printf("for %d prev = %d\n", curr, prev);
+	first_Y = (prev + ((prev + 1) % 2)) % all->qty + 1;
+	second_Y = (prev + (prev % 2)) % all->qty + 1;
 
 
 	// if (udream(all, 10))
@@ -18,9 +20,11 @@ void YY_lock(t_all *all, int curr)
 	pthread_mutex_lock(&all->Y[first_Y]);
 	// if (!udream(all, 10))
 		show_act(all, curr, "has taken a fork");
+		if (all->debug) printf("#%d TOOK %d\n", curr, first_Y);
 	pthread_mutex_lock(&all->Y[second_Y]);
 	// if (!udream(all, 10))
 		show_act(all, curr, "has taken a fork");
+		if (all->debug) printf("#%d TOOK %d\n", curr, second_Y);
 	pthread_mutex_lock(&all->philo[curr].last_meal_mtx);
 	all->philo[curr].last_meal = get_time();
 	pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
@@ -36,16 +40,20 @@ void YY_unlock(t_all *all, int curr)
 	int second_Y;
 
 	prev = (curr - 2 + all->qty) % all->qty + 1;
-	second_Y = (prev + ((prev + 1) % 2)) % (all->qty + 1);
-	first_Y = (prev + (prev % 2)) % all->qty;
+	second_Y = (prev + ((prev + 1) % 2)) % all->qty + 1;
+	first_Y = (prev + (prev % 2)) % all->qty + 1;
 	pthread_mutex_unlock(&all->Y[first_Y]);
-	pthread_mutex_unlock(&all->Y[second_Y]); 
+		if (all->debug) printf("#%d poot %d\n", curr, first_Y);
+	pthread_mutex_unlock(&all->Y[second_Y]);  
+		if (all->debug) printf("#%d poot %d\n", curr, second_Y);
 }
 
 void personal_loop (t_all *all, int curr)
 {
 	while (1)
 	{
+		usleep(27);
+
 		show_act(all, curr, "is thinking");
 		if (udream(all, 0))
 			return;
