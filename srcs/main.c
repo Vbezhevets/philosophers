@@ -12,6 +12,7 @@ void check_and_assign(t_all *all, int argc, char **argv, int i)
 		i++;
 	}
 	all->qty = ato(argv[1]);
+	all->alives = all->qty;
 	if (all->qty > MAX_Q)
 		error("too much ph-s. Good bye");
 	all->die_time = ato(argv[2]);
@@ -30,7 +31,6 @@ void check_and_assign(t_all *all, int argc, char **argv, int i)
 	}
 }
 
-
 void mtx_init(t_all *all, int i)
 {
 	while (i <= all->qty)
@@ -45,30 +45,18 @@ void mtx_init(t_all *all, int i)
 		error("error mutex creating");
 	if (pthread_mutex_init(&all->stop_mtx, NULL) != 0)
 		error("error mutex creating");
-}
-
-
-void *create_philo_thread(void * point_all)
-{
-	t_all *all;
-	int curr;
-
-	all = (t_all *)point_all;
-	pthread_mutex_lock(&all->cur_mtx);
-	curr = all->curr;
-	pthread_mutex_unlock(&all->cur_mtx);
-	personal_loop(all, curr, all->philo[curr].prev);
-	return NULL;
+	if (pthread_mutex_init(&all->alives_mtx, NULL) != 0)
+		error("error mutex creating");
+	if (pthread_mutex_init(&all->print_mtx, NULL) != 0)
+		error("error mutex creating");
 }
 
 void start(t_all *all, int i)
 {	
 	all->start_time = get_time();
-
 	all->stop = 0;
  	while (i <= all->qty)
 	{	
-		all->philo[i].id = i;
 		all->philo[i].start_time = all->start_time;
 		all->philo[i].last_meal = all->start_time;
 		all->philo[i].mall = all;
@@ -81,37 +69,45 @@ void start(t_all *all, int i)
 		i += 2;
         if (i > all->qty && i % 2 != 0)
 			i = 2;
-		usleep(30);
+		usleep(27);
 	}
-	common_loop(all, 1);
 }
-
 
 void end(t_all *all, int i)
 {
 	while (i <= all->qty)
 	{
+		// pthread_detach(all->philo[i].lives);
 		pthread_join(all->philo[i].lives, NULL);
 		pthread_mutex_destroy(&all->Y[i]);
 		pthread_mutex_destroy(&all->philo[i].last_meal_mtx);
 		i++;
 	}
+	pthread_mutex_unlock(&all->print_mtx);
+	pthread_mutex_destroy(&all->alives_mtx);
 	pthread_mutex_destroy(&all->cur_mtx);
+	pthread_mutex_destroy(&all->print_mtx);
 }
 
 int main (int argc, char *argv[])
 {
 	t_all  all;
 
-
 	if (argc != 6 && argc != 5)
 		return(printf("wrong aruments\n"), 1);
 	check_and_assign(&all, argc, argv, 1);
-
-	mtx_init(&all, 1);
-
-	start(&all, 1);
-
-	end(&all, 1);
-
+	if (all.qty == 1)
+	{
+		printf("0 1 has taken a fork\n");
+		printf("0 1 is thinking\n");
+		printf("%llu 1 died\n", all.die_time);
+		return (0);
+	}
+	else
+	{
+		mtx_init(&all, 1);
+		start(&all, 1);
+		common_loop(&all, 1);
+		end(&all, 1);
+	}
 }

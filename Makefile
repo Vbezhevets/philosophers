@@ -1,10 +1,7 @@
 NAME  = philosophers
 CC    = cc
-CFLAGS= -g #-Wall -Wextra -Werror 
+CFLAGS= -g -Wall -Wextra -Werror -fsanitize=thread
 RM    = rm -rf
-
-LIBDIR= ./libft
-LIBFT = ${LIBDIR}/libft.a
 
 SRCSDIR     = srcs
 SRCS  = \

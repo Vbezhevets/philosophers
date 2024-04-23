@@ -42,19 +42,18 @@ long long get_time()
 }
 
 
-void show_act(t_philo *philo, char *str)
+void show_act(t_all *all, int curr, char *str)
 {
-	struct timeval 	time;
 	long long 		t;
 
-	// gettimeofday(&time, NULL);
-	t = get_time() - philo->start_time;
-	printf("%llu %d %s\n", t, philo->id, str);
-
+	t = get_time() - all->philo[curr].start_time;
+	// pthread_mutex_lock(&all->print_mtx);
+	printf("%llu %d %s\n", t, curr, str);
+	// pthread_mutex_unlock(&all->print_mtx);
 }
-int udream(t_all *all, unsigned long long time)
+
+int udream(t_all *all, long long time)
 {
-	// time /= 1000;
 	long long start;
 	int i;
 
@@ -62,15 +61,14 @@ int udream(t_all *all, unsigned long long time)
 	start = get_time();
 	while (get_time() - start < time) 
 	{
-		// i++;
-		// printf("i run %d time\n", i);
-		// printf("%llu - %llu < %llu\n", get_time(), start,  time);
-		// printf("SToP %d\n", all->stop);
-		// printf("MEALS LEFT %d\n",	all->philo[i].meals_left);
-
+		pthread_mutex_lock(&all->stop_mtx);
 		if (all->stop)
+		{
+			pthread_mutex_unlock(&all->stop_mtx);
 			return 1;
-		usleep(15);
+		}
+		pthread_mutex_unlock(&all->stop_mtx);
+		usleep(25);
 	}
 	return 0;
 } 
