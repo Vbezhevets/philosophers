@@ -1,6 +1,6 @@
 #include "philosophers.h"
 
-
+ 
 void YY_lock(t_all *all, int curr)
 {
 	int prev;

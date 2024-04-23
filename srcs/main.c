@@ -1,7 +1,5 @@
 #include "philosophers.h"
-#include <assert.h>
-#include <stdio.h>
-#include <unistd.h>
+
 
 void check_and_assign(t_all *all, int argc, char **argv, int i)
 {
@@ -30,7 +28,7 @@ void check_and_assign(t_all *all, int argc, char **argv, int i)
 		i++;
 	}
 }
-
+ 
 void mtx_init(t_all *all, int i)
 {
 	while (i <= all->qty)
@@ -99,7 +97,7 @@ int main (int argc, char *argv[])
 	if (all.qty == 1)
 	{
 		printf("0 1 has taken a fork\n");
-		printf("0 1 is thinking\n");
+		printf("0 1 is thinking\n"); 
 		printf("%llu 1 died\n", all.die_time);
 		return (0);
 	}
