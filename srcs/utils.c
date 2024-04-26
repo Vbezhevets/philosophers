@@ -47,17 +47,20 @@ void show_act(t_all *all, int curr, char *str)
 	long long 		t;
 
 	t = get_time() - all->philo[curr].start_time;
-	pthread_mutex_lock(&all->print_mtx);
-	printf("%llu %d %s\n", t, curr, str);
-	pthread_mutex_unlock(&all->print_mtx);
+	pthread_mutex_lock(&all->stop_mtx);
+	if (!all->stop)
+	{
+		pthread_mutex_lock(&all->print_mtx);
+		printf("%llu %d %s\n", t, curr, str);
+		pthread_mutex_unlock(&all->print_mtx);
+	}
+	pthread_mutex_unlock(&all->stop_mtx);
 }
 
 int udream(t_all *all, long long time)
 {
 	long long start;
-	int i;
 
-	i = 0;
 	start = get_time();
 	while (get_time() - start < time) 
 	{
@@ -68,7 +71,7 @@ int udream(t_all *all, long long time)
 			return 1;
 		}
 		pthread_mutex_unlock(&all->stop_mtx);
-		usleep(25);
+		usleep(33);
 	}
 	return 0;
 } 

@@ -61,15 +61,13 @@ typedef  struct 	s_all
 
 int		udream(t_all *all, long long time);
 long	ato(char *arg);
-void	*create_philo_thread(void *ph_thread);
 void 	life_loop(t_all *all, int i);
-void 	personal_loop(t_all *all, int curr);
+void 	*personal_loop(void *ph_thread);
 void 	common_loop(t_all	*all, int i);
 void	loop(t_all *all, int i);
 int		error(char *message);
 int		prv(int i, t_all *all);
 long long 	get_time();
-// void	show_act(t_philo *philo, char *str);
 void 	show_act(t_all *all, int curr, char *str);
 void 	end(t_all *all, int i);
 int		lr_Y_free(t_all *all, int curr);

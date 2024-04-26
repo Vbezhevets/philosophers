@@ -11,11 +11,8 @@ void YY_lock(t_all *all, int curr)
 
 	first_Y = (prev + ((prev + 1) % 2)) % all->qty + 1;
 	second_Y = (prev + (prev % 2)) % all->qty + 1;
-
-
 	if (udream(all, 0))
 		return;
-
 	pthread_mutex_lock(&all->Y[first_Y]);
 	if (!udream(all, 0))
 		show_act(all, curr, "has taken a fork");
@@ -43,6 +40,22 @@ void YY_unlock(t_all *all, int curr)
 	pthread_mutex_unlock(&all->Y[second_Y]);  
 }
 
+int last_meal_update(t_all *all, int curr)
+{
+	pthread_mutex_lock(&all->philo[curr].last_meal_mtx);
+	all->philo[curr].meals_left--;
+	if (all->philo[curr].meals_left == 0)
+	{
+		pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
+		pthread_mutex_lock(&all->alives_mtx);
+		all->alives--;
+		pthread_mutex_unlock(&all->alives_mtx);
+		return (1);
+	}
+	pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
+	return (0);
+}
+
 void *personal_loop(void *philo_point)
 {
 	t_philo *philo;
@@ -54,29 +67,13 @@ void *personal_loop(void *philo_point)
 	all = philo->mall;
 	while (1)
 	{
-		usleep(27);
-		if (udream(all, 0))
-			return (NULL);
 		show_act(all, curr, "is thinking");
 		YY_lock(all, curr);
 		if (udream(all, all->eat_time))
-		{
-			YY_unlock(all, curr);
-			return (NULL);
-		}
+			return (YY_unlock(all, curr), NULL);
 		YY_unlock(all, curr);
-		pthread_mutex_lock(&all->philo[curr].last_meal_mtx);
-		all->philo[curr].meals_left--;
-		if (all->philo[curr].meals_left == 0)
-		{
-			pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
-			pthread_mutex_lock(&all->alives_mtx);
-			all->alives--;
-			pthread_mutex_unlock(&all->alives_mtx);
+		if (last_meal_update(all, curr))
 			return (NULL);
-		}
-		pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
-
 		if (udream(all, 0))
 			return (NULL);
 		show_act(all, curr, "is sleeping");
@@ -89,8 +86,6 @@ void *personal_loop(void *philo_point)
 
 void common_loop(t_all	*all, int i)
 {	
-	long long t;
-
 	while (i <= all->qty)
 	{	
 		pthread_mutex_lock(&all->philo[i].last_meal_mtx);
@@ -101,34 +96,17 @@ void common_loop(t_all	*all, int i)
 			pthread_mutex_lock(&all->stop_mtx);
 			all->stop = 1;
 			pthread_mutex_unlock(&all->stop_mtx);
-			t = get_time() - all->philo[i].start_time;
 			pthread_mutex_lock(&all->print_mtx);
-			printf("%llu %d died\n", t, i);
+			printf("%llu %d died\n", get_time() - all->philo[i].start_time, i);
 			pthread_mutex_unlock(&all->print_mtx);
-			// usleep(100000);
 			break;
 		}
 		pthread_mutex_unlock(&all->philo[i].last_meal_mtx);
-		pthread_mutex_lock(&all->alives_mtx);
 		if (all->alives <= 0)
-		{
-			pthread_mutex_unlock(&all->alives_mtx);
 		 	return;
-		}
-		pthread_mutex_unlock(&all->alives_mtx);
 		i++;
 		if (i > all->qty)
 			i = 1;
 	}
 }
-
-// void *create_philo_thread(void * point_philo)
-// {
-// 	t_philo *philo;
-// 	int curr;
-
-// 	philo = (t_philo *)point_philo;
-// 	curr = philo->id;
-// 	personal_loop(philo->mall, curr);
-// 	return NULL;
-// }
+ 

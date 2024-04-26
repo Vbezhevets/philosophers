@@ -39,8 +39,6 @@ void mtx_init(t_all *all, int i)
 			error("error mutex creating");
 		i++;
 	}
-	// if (pthread_mutex_init(&all->cur_mtx, NULL) != 0)
-	// 	error("error mutex creating");
 	if (pthread_mutex_init(&all->stop_mtx, NULL) != 0)
 		error("error mutex creating");
 	if (pthread_mutex_init(&all->alives_mtx, NULL) != 0)
@@ -60,17 +58,13 @@ void start(t_all *all, int i)
 		all->philo[i].last_meal = all->start_time;
 		all->philo[i].mall = all;
 		all->philo[i].last_sleep = all->start_time + all->sleep_time;
-		// pthread_mutex_lock(&all->cur_mtx);
-		// all->curr = i;
-		// pthread_mutex_unlock(&all->cur_mtx);
-		if (pthread_create(&all->philo[i].lives, NULL, &create_philo_thread, (void *) &all->philo[i]) != 0)
+		if (pthread_create(&all->philo[i].lives, NULL, &personal_loop, (void *) &all->philo[i]) != 0)
 	 		error("error creating thread");
-		// personal_loop(all, i);
 
 		i += 2;
         if (i > all->qty && i % 2 != 0)
 			i = 2;
-		usleep(27);
+		usleep(33);
 	}
 }
 
@@ -86,7 +80,6 @@ void end(t_all *all, int i)
 		pthread_mutex_destroy(&all->Y[i]);
 
 	pthread_mutex_destroy(&all->alives_mtx);
-	// pthread_mutex_destroy(&all->cur_mtx);
 	pthread_mutex_destroy(&all->print_mtx);
 }
 
