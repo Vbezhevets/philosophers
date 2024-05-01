@@ -43,8 +43,8 @@ typedef  struct 	s_all
 	pthread_mutex_t	cur_mtx;
 	int				curr;
 
-	pthread_mutex_t	alives_mtx;
-	int				alives;
+	pthread_mutex_t	alive_mtx;
+	int				alive;
 
 	pthread_mutex_t	print_mtx;
 
@@ -71,5 +71,6 @@ long long 	get_time();
 void 	show_act(t_all *all, int curr, char *str);
 void 	end(t_all *all, int i);
 int		lr_Y_free(t_all *all, int curr);
-
+int		are_alive(t_all *all);
+int		ones_case(t_all *all, int ones_Y);
 #endif

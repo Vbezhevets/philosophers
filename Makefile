@@ -1,6 +1,6 @@
-NAME  = philosophers
+NAME  = philo
 CC    = cc
-CFLAGS= -g -Wall -Wextra -Werror -pthread # -fsanitize=thread
+CFLAGS= -g -Wall -Wextra -Werror #-pthread # -fsanitize=thread
 RM    = rm -rf
 
 SRCSDIR     = srcs

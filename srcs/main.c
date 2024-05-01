@@ -10,7 +10,7 @@ void check_and_assign(t_all *all, int argc, char **argv, int i)
 		i++;
 	}
 	all->qty = ato(argv[1]);
-	all->alives = all->qty;
+	all->alive = all->qty;
 	if (all->qty > MAX_Q)
 		error("too much ph-s. Good bye");
 	all->die_time = ato(argv[2]);
@@ -41,7 +41,7 @@ void mtx_init(t_all *all, int i)
 	}
 	if (pthread_mutex_init(&all->stop_mtx, NULL) != 0)
 		error("error mutex creating");
-	if (pthread_mutex_init(&all->alives_mtx, NULL) != 0)
+	if (pthread_mutex_init(&all->alive_mtx, NULL) != 0)
 		error("error mutex creating");
 	if (pthread_mutex_init(&all->print_mtx, NULL) != 0)
 		error("error mutex creating");
@@ -76,10 +76,13 @@ void end(t_all *all, int i)
 		pthread_mutex_destroy(&all->philo[i].last_meal_mtx);
 		i++;
 	}
+	i = 1;
 	while (i <= all->qty)
+	{
 		pthread_mutex_destroy(&all->Y[i]);
-
-	pthread_mutex_destroy(&all->alives_mtx);
+		i++;
+	}
+	pthread_mutex_destroy(&all->alive_mtx);
 	pthread_mutex_destroy(&all->print_mtx);
 }
 
@@ -91,18 +94,18 @@ int main (int argc, char *argv[])
 	if (argc != 6 && argc != 5)
 		return(printf("wrong aruments\n"), 1);
 	check_and_assign(&all, argc, argv, 1);
-	if (all.qty == 1)
-	{
-		printf("0 1 has taken a fork\n");
-		printf("0 1 is thinking\n"); 
-		printf("%llu 1 died\n", all.die_time);
-		return (0);
-	}
-	else
-	{
+	// if (all.qty == 1)
+	// {
+	// 	printf("0 1 has taken a fork\n");
+	// 	printf("0 1 is thinking\n"); 
+	// 	printf("%llu 1 died\n", all.die_time);
+	// 	return (0);
+	// }
+	// else
+	// {
 		mtx_init(&all, 1);
 		start(&all, 1);
 		common_loop(&all, 1);
 		end(&all, 1);
-	}
+	// }
 }

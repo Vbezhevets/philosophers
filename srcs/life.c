@@ -1,21 +1,22 @@
 	#include "philosophers.h"
 
  
-void YY_lock(t_all *all, int curr)
+int YY_lock(t_all *all, int curr)
 {
 	int prev;
 	int	first_Y;
 	int second_Y;
 
 	prev = (curr - 2 + all->qty) % all->qty + 1;
-
 	first_Y = (prev + ((prev + 1) % 2)) % all->qty + 1;
 	second_Y = (prev + (prev % 2)) % all->qty + 1;
 	if (udream(all, 0))
-		return;
+		return (0);
 	pthread_mutex_lock(&all->Y[first_Y]);
 	if (!udream(all, 0))
 		show_act(all, curr, "has taken a fork");
+	if (ones_case(all, first_Y))
+		return (1);
 	pthread_mutex_lock(&all->Y[second_Y]);
 	if (!udream(all, 0))
 		show_act(all, curr, "has taken a fork");
@@ -24,7 +25,7 @@ void YY_lock(t_all *all, int curr)
 	pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
 	if (!udream(all, 0))
 		show_act(all, curr, "is eating");
-
+	return (0);
 }
 
 void YY_unlock(t_all *all, int curr)
@@ -47,9 +48,9 @@ int last_meal_update(t_all *all, int curr)
 	if (all->philo[curr].meals_left == 0)
 	{
 		pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
-		pthread_mutex_lock(&all->alives_mtx);
-		all->alives--;
-		pthread_mutex_unlock(&all->alives_mtx);
+		pthread_mutex_lock(&all->alive_mtx);
+		all->alive--;
+		pthread_mutex_unlock(&all->alive_mtx);
 		return (1);
 	}
 	pthread_mutex_unlock(&all->philo[curr].last_meal_mtx);
@@ -68,7 +69,8 @@ void *personal_loop(void *philo_point)
 	while (1)
 	{
 		show_act(all, curr, "is thinking");
-		YY_lock(all, curr);
+		if (YY_lock(all, curr))
+			return (NULL);
 		if (udream(all, all->eat_time))
 			return (YY_unlock(all, curr), NULL);
 		YY_unlock(all, curr);
@@ -102,7 +104,7 @@ void common_loop(t_all	*all, int i)
 			break;
 		}
 		pthread_mutex_unlock(&all->philo[i].last_meal_mtx);
-		if (all->alives <= 0)
+		if (!are_alive(all))
 		 	return;
 		i++;
 		if (i > all->qty)
