@@ -94,18 +94,9 @@ int main (int argc, char *argv[])
 	if (argc != 6 && argc != 5)
 		return(printf("wrong aruments\n"), 1);
 	check_and_assign(&all, argc, argv, 1);
-	// if (all.qty == 1)
-	// {
-	// 	printf("0 1 has taken a fork\n");
-	// 	printf("0 1 is thinking\n"); 
-	// 	printf("%llu 1 died\n", all.die_time);
-	// 	return (0);
-	// }
-	// else
-	// {
-		mtx_init(&all, 1);
-		start(&all, 1);
+	mtx_init(&all, 1);
+	start(&all, 1);
+	if (all.qty != 1)
 		common_loop(&all, 1);
-		end(&all, 1);
-	// }
+	end(&all, 1);
 }
